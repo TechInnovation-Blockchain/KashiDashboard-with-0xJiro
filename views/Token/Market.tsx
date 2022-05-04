@@ -14,7 +14,7 @@ const Market = ({
 }) => {
   return (
     <>
-      <div className="container mx-auto -mt-16 mx-auto px-4 mb-16">
+      <div className="container mx-auto -mt-16 px-4 mb-16">
         <PairCard data={kashiPair} containerClass="mb-4" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <PairSupplyBorrowDayDataChart
