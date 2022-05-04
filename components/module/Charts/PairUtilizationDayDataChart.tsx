@@ -22,7 +22,7 @@ const PairUtilizationDayDataChart = ({
         y:
           BigNumber.from(item.avgUtilization)
             .div("100000000000000")
-            .toNumber() / 100.0,
+            .toNumber() / 1000.0,
       });
     });
     return [

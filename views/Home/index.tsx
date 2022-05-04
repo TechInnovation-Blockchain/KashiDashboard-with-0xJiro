@@ -107,7 +107,7 @@ const Home: NextPage = () => {
   }, [dataKashiPairs]);
 
   const setKashiPairsData = async (kashiPairsData: KashiPair[]) => {
-    const symbols = calculateService.extractAssetSymbols(kashiPairsData);
+    const symbols = calculateService.extractKashiPairAssetSymbols(kashiPairsData);
     const pricesMap = await coinGeckoService.getPrices(symbols);
     setPricesMap(pricesMap);
 

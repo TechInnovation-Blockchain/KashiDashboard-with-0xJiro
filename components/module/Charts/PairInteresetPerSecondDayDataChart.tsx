@@ -23,8 +23,9 @@ const PairInterestPerSecondDayDataChart = ({
           BigNumber.from(item.avgInterestPerSecond)
             .mul("3600")
             .mul("24")
-            .div("1000000000000")
-            .toNumber() / 1000000.0,
+            .mul("365")
+            .div(1e12)
+            .toNumber() / 1e5,
       });
     });
     return [
@@ -91,31 +92,31 @@ const PairInterestPerSecondDayDataChart = ({
         "bg-white shadow-lg rounded over overflow-hidden": true,
       })}
     >
-      <div className="text-center text-lg font-medium pt-6">{title}</div>
+      <div className="pt-6 text-lg font-medium text-center">{title}</div>
       {!data || data.length === 0 ? (
         <div>
           <div
-            className="loading my-12 mx-4 rounded"
+            className="mx-4 my-12 rounded loading"
             style={{ height: "1px" }}
           ></div>
           <div
-            className="loading my-12 mx-4 rounded"
+            className="mx-4 my-12 rounded loading"
             style={{ height: "1px" }}
           ></div>
           <div
-            className="loading my-12 mx-4 rounded"
+            className="mx-4 my-12 rounded loading"
             style={{ height: "1px" }}
           ></div>
           <div
-            className="loading my-12 mx-4 rounded"
+            className="mx-4 my-12 rounded loading"
             style={{ height: "1px" }}
           ></div>
           <div
-            className="loading my-12 mx-4 rounded"
+            className="mx-4 my-12 rounded loading"
             style={{ height: "1px" }}
           ></div>
           <div
-            className="loading my-12 mx-4 rounded"
+            className="mx-4 my-12 rounded loading"
             style={{ height: "1px" }}
           ></div>
         </div>
