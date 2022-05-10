@@ -3,10 +3,9 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import TokenMarketTable from "../../components/module/Tables/TokenMarketTable";
 import { useAppContext } from "../../context/AppContext";
-import { getTokensQuery } from "../../graphql/explore";
-import { Token } from "../../types/Token";
+import { getKashiPairsQuery } from "../../graphql/explore";
+import { KashiPairsByToken } from "../../types/KashiPair";
 import BaseLayout from "../Layouts/BaseLayout";
 import Hero from "./Hero";
 import Market from "./Market";
@@ -15,11 +14,13 @@ const Home: NextPage = () => {
   const {
     loading: loadingToken,
     error,
-    data: dataTokens,
-  } = useQuery(getTokensQuery);
+    data: dataKashiPairs,
+  } = useQuery(getKashiPairsQuery);
   const [calculating, setCalculating] = useState(true);
   const [pricesMap, setPricesMap] = useState<{ [key: string]: BigInt }>({});
-  const [tokens, setTokens] = useState<Token[]>([] as Token[]);
+  const [kashiPairsByTokens, setKashiPairsByTokens] = useState<
+    KashiPairsByToken[]
+  >([]);
   const { coinGeckoService, calculateService } = useAppContext();
   const loading = loadingToken || calculating;
 
@@ -30,28 +31,27 @@ const Home: NextPage = () => {
   }, [error]);
 
   useEffect(() => {
-    if (dataTokens) {
-      if (dataTokens.tokens) {
-        setDataTokens();
+    if (dataKashiPairs) {
+      if (dataKashiPairs.kashiPairs) {
+        setDataKashiPairs();
       }
     }
-  }, [dataTokens]);
+  }, [dataKashiPairs]);
 
-  const setDataTokens = async () => {
-    const { tokens } = dataTokens;
-    const symbols = calculateService.extractTokenSymbols(tokens);
+  const setDataKashiPairs = async () => {
+    const { kashiPairs } = dataKashiPairs;
+    const symbols = calculateService.extractKashiPairAssetSymbols(kashiPairs);
     const pricesMap = await coinGeckoService.getPrices(symbols);
     setPricesMap(pricesMap);
 
-    const { tokens: newTokens } = calculateService.calculateTokenPrices(
-      tokens,
-      pricesMap
-    );
+    const { kashiPairsByTokens } =
+      calculateService.calculateKashiPairPricesGroupByAsset(
+        kashiPairs,
+        pricesMap
+      );
     setCalculating(false);
-    setTokens(
-      newTokens
-        .filter((token) => token.totalSupply > 0)
-        .sort((a, b) => (a.totalSupply > b.totalSupply ? -1 : 1))
+    setKashiPairsByTokens(
+      kashiPairsByTokens.sort((a, b) => (a.totalAsset > b.totalAsset ? -1 : 1))
     );
   };
 
@@ -62,7 +62,7 @@ const Home: NextPage = () => {
       </Head>
       <BaseLayout>
         <Hero />
-        <Market data={tokens} loading={loading} />
+        <Market data={kashiPairsByTokens} loading={loading} />
       </BaseLayout>
     </>
   );

@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import moment from "moment";
-import { KashiPair } from "../../types/KashiPair";
+import { KashiPair, KashiPairsByToken } from "../../types/KashiPair";
 import {
   KashiPairDayData,
   KashiPairDayDataMap,
@@ -102,6 +102,59 @@ class CalculateService {
       totalAsset: sumTotalAsset,
       totalBorrow: sumTotalBorrow,
       kashiPairs: newKashiPairs,
+    };
+  }
+
+  calculateKashiPairPricesGroupByAsset(
+    kashiPairs: KashiPair[],
+    pricesMap: { [key: string]: BigInt }
+  ) {
+    const {
+      totalAsset,
+      totalBorrow,
+      kashiPairs: newKashiPairs,
+    } = this.calculateKashiPairPrices(kashiPairs, pricesMap);
+
+    const kashiPairsByTokenMap: { [key: string]: KashiPairsByToken } = {};
+    newKashiPairs.forEach((kashiPair) => {
+      const { asset } = kashiPair;
+      if (asset) {
+        if (kashiPairsByTokenMap[asset.id]) {
+          const kashiPairsByToken = kashiPairsByTokenMap[asset.id];
+          kashiPairsByToken.kashiPairs.push(kashiPair);
+          kashiPairsByToken.totalAsset = BigNumber.from(
+            kashiPairsByToken.totalAsset
+          )
+            .add(BigNumber.from(kashiPair.totalAsset))
+            .toBigInt();
+
+          kashiPairsByToken.totalAsset = BigNumber.from(
+            kashiPairsByToken.totalAsset
+          )
+            .add(BigNumber.from(kashiPair.totalAsset))
+            .toBigInt();
+
+          kashiPairsByToken.totalBorrow = BigNumber.from(
+            kashiPairsByToken.totalBorrow
+          )
+            .add(BigNumber.from(kashiPair.totalBorrow))
+            .toBigInt();
+        } else {
+          kashiPairsByTokenMap[asset.id] = {
+            token: asset,
+            totalAsset: kashiPair.totalAsset,
+            totalBorrow: kashiPair.totalBorrow,
+            kashiPairs: [kashiPair],
+          };
+        }
+      }
+    });
+
+    const kashiPairsByTokens = Object.values(kashiPairsByTokenMap);
+    return {
+      totalAsset,
+      totalBorrow,
+      kashiPairsByTokens,
     };
   }
 

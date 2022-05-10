@@ -31,7 +31,7 @@ const AttributesMapByBorrow = {
   },
   asset: {
     progressColor: "sky",
-    title: "Total Asset",
+    title: "Total Available",
     users: "Suppliers",
   },
   supply: {
@@ -62,16 +62,16 @@ const TotalCard = ({
         "bg-white border rounded shadow-md": true,
       })}
     >
-      <div className="border-b px-8 py-5 font-semibold">{attributes.title}</div>
+      <div className="px-8 py-5 font-semibold border-b">{attributes.title}</div>
       <div className="px-8 py-8">
-        <div className="text-xl font-medium mb-4">
+        <div className="mb-4 text-xl font-medium">
           {isLoading ? (
-            <div className="inline-block loading h-5 w-48 rounded"></div>
+            <div className="inline-block w-48 h-5 rounded loading"></div>
           ) : (
             numeral(Number(data.amount) / 100.0).format("($0,0.00)")
           )}
         </div>
-        <div className="text-sm text-gray-400 font-medium mb-4">
+        <div className="mb-4 text-sm font-medium text-gray-400">
           Top {data.topMarkets.length} Markets
         </div>
         {isLoading ? (
@@ -105,27 +105,27 @@ const TotalCard = ({
             />
           ))
         )}
-        {/* <div className="mt-8 border-t pt-6">
+        {/* <div className="pt-6 mt-8 border-t">
           <div className="flex justify-between">
             <div>
-              <div className="text-sm text-gray-400 font-semibold">
+              <div className="text-sm font-semibold text-gray-400">
                 24H Supply Volume
               </div>
               <div className="mt-2">
                 {isLoading ? (
-                  <div className="loading h-5 w-32 rounded"></div>
+                  <div className="w-32 h-5 rounded loading"></div>
                 ) : (
                   numeral(data.volumeIn24H).format("$0,0.00")
                 )}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-400 font-semibold">
+              <div className="text-sm font-semibold text-gray-400">
                 # of {attributes.users}
               </div>
               <div className="mt-2">
                 {isLoading ? (
-                  <div className="ml-auto loading h-5 w-20 rounded"></div>
+                  <div className="w-20 h-5 ml-auto rounded loading"></div>
                 ) : (
                   data.totalUsers
                 )}
