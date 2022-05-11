@@ -123,9 +123,28 @@ const Home: NextPage = () => {
     setTotalAssetsAmount(totalAssetsValue.toBigInt());
     setTotalBorrowsAmount(totalBorrowsValue.toBigInt());
 
-    setTop3MarketsBySupply(sortedKashiPairsBySupply.slice(0, 3));
-    setTop3MarketsByAsset(sortedKashiPairsByAsset.slice(0, 3));
-    setTop3MarketsByBorrow(sortedKashiPairsByBorrow.slice(0, 3));
+    setTop3MarketsBySupply(
+      sortedKashiPairsBySupply.slice(
+        0,
+        sortedKashiPairsBySupply.length < 3
+          ? sortedKashiPairsBySupply.length
+          : 3
+      )
+    );
+    setTop3MarketsByAsset(
+      sortedKashiPairsByAsset.slice(
+        0,
+        sortedKashiPairsByAsset.length < 3 ? sortedKashiPairsByAsset.length : 3
+      )
+    );
+    setTop3MarketsByBorrow(
+      sortedKashiPairsByBorrow.slice(
+        0,
+        sortedKashiPairsByBorrow.length < 3
+          ? sortedKashiPairsByBorrow.length
+          : 3
+      )
+    );
 
     setKashiPairs(newKashiPairs);
   };

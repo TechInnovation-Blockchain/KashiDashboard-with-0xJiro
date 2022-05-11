@@ -9,11 +9,9 @@ const Market = ({
   data: KashiPairsByToken[];
 }) => {
   return (
-    <>
-      <div className="max-w-6xl px-4 mx-auto mb-24 -mt-14">
-        <TokenMarketTable title={"All Markets"} loading={loading} data={data} />
-      </div>
-    </>
+    <div className="max-w-6xl px-4 mx-auto mt-4 mb-24">
+      <TokenMarketTable title={"All Markets"} loading={loading} data={data} />
+    </div>
   );
 };
 
