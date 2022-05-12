@@ -4,7 +4,7 @@ import { KashiPair, KashiPairsByToken } from "../../types/KashiPair";
 import {
   KashiPairDayData,
   KashiPairDayDataMap,
-  KashiPairDayDataMapsCollateral
+  KashiPairDayDataMapsCollateral,
 } from "../../types/KashiPairDayData";
 import { Token } from "../../types/Token";
 
@@ -270,16 +270,65 @@ class CalculateService {
           kashiPairs: [newKashiPair],
         });
       }
-      kashiPairsMaps.forEach((value) => {
-        value.avgExchangeRate = BigNumber.from(value.avgExchangeRate)
-          .div(BigNumber.from(value.kashiPairs.length))
+
+      let prevKashiPairsMap: KashiPairDayDataMap = {
+        kashiPairs: [],
+        totalAsset: BigInt(0),
+        totalBorrow: BigInt(0),
+        avgExchangeRate: BigInt(0),
+        avgUtilization: BigInt(0),
+        avgInterestPerSecond: BigInt(0),
+        date: "0000-00-00",
+      };
+      kashiPairsMaps.forEach((kashiPairMap) => {
+        const { kashiPairs: prevKashiPairs } = prevKashiPairsMap;
+        const { kashiPairs } = kashiPairMap;
+        prevKashiPairs.forEach((prevKashiPair) => {
+          const index = kashiPairs.findIndex(
+            (kashiPair) => prevKashiPair.pair.id === kashiPair.pair.id
+          );
+          if (index === -1) {
+            kashiPairMap.totalAsset = BigNumber.from(kashiPairMap.totalAsset)
+              .add(BigNumber.from(prevKashiPair.totalAsset))
+              .toBigInt();
+            kashiPairMap.totalBorrow = BigNumber.from(kashiPairMap.totalBorrow)
+              .add(BigNumber.from(prevKashiPair.totalBorrow))
+              .toBigInt();
+            kashiPairMap.avgExchangeRate = BigNumber.from(
+              kashiPairMap.avgExchangeRate
+            )
+              .add(BigNumber.from(prevKashiPair.avgExchangeRate))
+              .toBigInt();
+            kashiPairMap.avgUtilization = BigNumber.from(
+              kashiPairMap.avgUtilization
+            )
+              .add(BigNumber.from(prevKashiPair.avgUtilization))
+              .toBigInt();
+            kashiPairMap.avgInterestPerSecond = BigNumber.from(
+              kashiPairMap.avgInterestPerSecond
+            )
+              .add(BigNumber.from(prevKashiPair.avgInterestPerSecond))
+              .toBigInt();
+            kashiPairs.push(prevKashiPair);
+          }
+        });
+
+        kashiPairMap.avgExchangeRate = BigNumber.from(
+          kashiPairMap.avgExchangeRate
+        )
+          .div(BigNumber.from(kashiPairMap.kashiPairs.length))
           .toBigInt();
-        value.avgUtilization = BigNumber.from(value.avgUtilization)
-          .div(BigNumber.from(value.kashiPairs.length))
+        kashiPairMap.avgUtilization = BigNumber.from(
+          kashiPairMap.avgUtilization
+        )
+          .div(BigNumber.from(kashiPairMap.kashiPairs.length))
           .toBigInt();
-        value.avgInterestPerSecond = BigNumber.from(value.avgInterestPerSecond)
-          .div(BigNumber.from(value.kashiPairs.length))
+        kashiPairMap.avgInterestPerSecond = BigNumber.from(
+          kashiPairMap.avgInterestPerSecond
+        )
+          .div(BigNumber.from(kashiPairMap.kashiPairs.length))
           .toBigInt();
+        prevKashiPairsMap = kashiPairMap;
       });
       kashiPairsMaps.sort((a, b) => a.date.localeCompare(b.date));
       return newKashiPair;
@@ -340,7 +389,10 @@ class CalculateService {
         totalBorrow: totalBorrow.toBigInt(),
       };
 
-      const kashiPairDate = moment.unix(kashiPair.date).startOf('month').format("YYYY-MM-DD");
+      const kashiPairDate = moment
+        .unix(kashiPair.date)
+        .startOf("month")
+        .format("YYYY-MM-DD");
       const itemKashiPairMap = kashiPairsMaps.find(
         (kashiPairMap) => kashiPairMap.date === kashiPairDate
       );

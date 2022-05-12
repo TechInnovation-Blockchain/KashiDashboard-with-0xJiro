@@ -30,21 +30,13 @@ const Home: NextPage = () => {
 
   const {
     loading: loadingKashiPairsDayData0,
-    error: errorKashiPairsDayData0,
     data: dataKashiPairsDayData0,
   } = useQuery(getKashiPairsDayDataQuery, { variables: { skip: 0 } });
 
   const {
     loading: loadingKashiPairsDayData1,
-    error: errorKashiPairsDayData1,
     data: dataKashiPairsDayData1,
   } = useQuery(getKashiPairsDayDataQuery, { variables: { skip: 1000 } });
-
-  const {
-    loading: loadingKashiPairsDayData2,
-    error: errorKashiPairsDayData2,
-    data: dataKashiPairsDayData2,
-  } = useQuery(getKashiPairsDayDataQuery, { variables: { skip: 2000 } });
 
   const [kashiPairsDayData, setKashiPairsDayData] = useState<
     KashiPairDayDataMap[]
@@ -71,8 +63,7 @@ const Home: NextPage = () => {
   const loadingDayData =
     loading ||
     loadingKashiPairsDayData0 ||
-    loadingKashiPairsDayData1 ||
-    loadingKashiPairsDayData2;
+    loadingKashiPairsDayData1
 
   useEffect(() => {
     if (dataKashiPairs) {
@@ -162,13 +153,11 @@ const Home: NextPage = () => {
       !loadingKashiPairs &&
       !calculating &&
       !loadingKashiPairsDayData0 &&
-      !loadingKashiPairsDayData1 &&
-      !loadingKashiPairsDayData2
+      !loadingKashiPairsDayData1
     ) {
       const dataKashiPairsDayDataMap = [
         dataKashiPairsDayData0,
         dataKashiPairsDayData1,
-        dataKashiPairsDayData2,
       ];
 
       const dataKashiPairsDayData = dataKashiPairsDayDataMap.reduce(
@@ -195,7 +184,6 @@ const Home: NextPage = () => {
     calculating,
     loadingKashiPairsDayData0,
     loadingKashiPairsDayData1,
-    loadingKashiPairsDayData2,
   ]);
 
   return (
