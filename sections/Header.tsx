@@ -9,6 +9,7 @@ import Button from "../components/base/Buttons/Button";
 const navigation = [
   { name: "Dashboard", href: "/", current: true },
   { name: "Explore", href: "/explore", current: false },
+  { name: "Farm", href: "/farm", current: false },
 ];
 
 const Header = () => {
