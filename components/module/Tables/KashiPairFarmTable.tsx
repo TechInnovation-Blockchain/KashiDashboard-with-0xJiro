@@ -5,17 +5,10 @@ import numeral from "numeral";
 import React, { useEffect, useState } from "react";
 import { FaSortDown, FaSortUp } from "react-icons/fa";
 import { useAppContext } from "../../../context/AppContext";
+import { formatNumber, formatPercent } from "../../../sushi/functions/format";
 import { KashiPair } from "../../../types/KashiPair";
 
-type OrderBy =
-  | "asset"
-  | "collateral"
-  | "totalSupply"
-  | "totalAsset"
-  | "supplyAPY"
-  | "totalBorrow"
-  | "borrowAPY"
-  | "";
+type OrderBy = "asset" | "collateral" | "tvl" | "apr" | "";
 type OrderDirection = "asc" | "desc";
 
 const MarketTableHead = ({
@@ -57,56 +50,26 @@ const MarketTableHead = ({
       <td
         className="p-2 text-right"
         onClick={() => {
-          onSort("totalSupply");
+          onSort("tvl");
         }}
       >
         <span className="cursor-pointer">
-          Total Supply
-          {orderBy === "totalSupply" && iconByDirection[orderDirection]}
+          TVL
+          {orderBy === "tvl" && iconByDirection[orderDirection]}
         </span>
       </td>
-      <td
-        className="p-2 text-right"
-        onClick={() => {
-          onSort("totalAsset");
-        }}
-      >
-        <span className="cursor-pointer">
-          Total Available
-          {orderBy === "totalAsset" && iconByDirection[orderDirection]}
-        </span>
+      <td className="p-2 text-right">
+        <span>Rewards</span>
       </td>
       <td
-        className="p-2 text-right"
+        className="pl-2 pr-8 py-2 text-right"
         onClick={() => {
-          onSort("supplyAPY");
+          onSort("apr");
         }}
       >
         <span className="cursor-pointer">
-          Supply APY
-          {orderBy === "supplyAPY" && iconByDirection[orderDirection]}
-        </span>
-      </td>
-      <td
-        className="p-2 text-right"
-        onClick={() => {
-          onSort("totalBorrow");
-        }}
-      >
-        <span className="cursor-pointer">
-          Total Borrow
-          {orderBy === "totalBorrow" && iconByDirection[orderDirection]}
-        </span>
-      </td>
-      <td
-        className="py-2 pl-2 pr-8 text-right"
-        onClick={() => {
-          onSort("borrowAPY");
-        }}
-      >
-        <span className="cursor-pointer">
-          Borrow APY
-          {orderBy === "borrowAPY" && iconByDirection[orderDirection]}
+          APR
+          {orderBy === "apr" && iconByDirection[orderDirection]}
         </span>
       </td>
     </tr>
@@ -135,42 +98,19 @@ const MarketTableRowLoading = () => (
       <div>
         <div className="inline-block w-32 h-5 rounded loading"></div>
       </div>
-      <div>
-        <div className="inline-block h-4 rounded loading w-28"></div>
-      </div>
     </td>
     <td className="px-2 py-3 text-right">
       <div>
         <div className="inline-block w-32 h-5 rounded loading"></div>
       </div>
-      <div>
-        <div className="inline-block h-4 rounded loading w-28"></div>
-      </div>
     </td>
-    <td className="px-2 py-3 text-right">
-      <div className="inline-block w-12 h-5 rounded loading"></div>
-    </td>
-    <td className="px-2 py-3 text-right">
-      <div>
-        <div className="inline-block w-32 h-5 rounded loading"></div>
-      </div>
-      <div>
-        <div className="inline-block h-4 rounded loading w-28"></div>
-      </div>
-    </td>
-    <td className="py-3 pl-2 pr-8 text-right">
+    <td className="pl-2 pr-8 py-3 text-right">
       <div className="inline-block w-12 h-5 rounded loading"></div>
     </td>
   </tr>
 );
 
-const MarketTableRow = ({
-  data,
-  index,
-}: {
-  data: KashiPair;
-  index: number;
-}) => {
+const MarketTableRow = ({ data, index }: { data: any; index: number }) => {
   const { tokenUtilService, handleLogoError } = useAppContext();
   const router = useRouter();
   const goto = (route: string) => {
@@ -179,103 +119,60 @@ const MarketTableRow = ({
 
   return (
     <tr
-      onClick={() => goto(`/pair/${data.id}`)}
+      onClick={() => goto(`/pair/${data.pair.id}`)}
       className="border-t border-l-2 border-transparent cursor-pointer border-t-gray-200 hover:border-l-primary1-400"
     >
       <td className="py-3 pl-8 pr-2">
         <div className="md:flex">
           <div className="flex">
             <img
-              src={tokenUtilService.logo(data.asset?.symbol)}
+              src={tokenUtilService.logo(data.pair.asset?.symbol)}
               className="inline-block w-8 h-8 rounded-full"
               onError={handleLogoError}
-              alt={data?.symbol}
+              alt={data.pair.asset?.symbol}
             />
             <img
-              src={tokenUtilService.logo(data.collateral?.symbol)}
+              src={tokenUtilService.logo(data.pair.collateral?.symbol)}
               onError={handleLogoError}
               className="inline-block w-8 h-8 -ml-2 rounded-full"
-              alt={data?.symbol}
+              alt={data.pair.asset?.symbol}
             />
           </div>
           <div className="text-sm md:text-base md:ml-2">
             {tokenUtilService.pairSymbol(
-              data.asset?.symbol,
-              data.collateral?.symbol
+              data.pair.asset?.symbol,
+              data.pair.collateral?.symbol
             )}
           </div>
         </div>
       </td>
       <td className="px-2 py-3 text-right">
-        <div>
-          {numeral(
-            BigNumber.from(data?.totalAsset)
-              .add(BigNumber.from(data.totalBorrow))
-              .toNumber() / 100
-          ).format("$0,.00")}
-        </div>
-        <div className="text-xs text-gray-400">
-          {numeral(
-            BigNumber.from(data?.totalAssetElastic)
-              .add(BigNumber.from(data.totalBorrowElastic))
-              .div(
-                BigNumber.from("10").pow(Number(data.asset?.decimals || 0) - 2)
-              )
-              .toNumber() / 100
-          ).format("0,.00")}
-          &nbsp;
-          {data.asset?.symbol}
-        </div>
+        <div>{formatNumber(data.tvl, true)}</div>
       </td>
       <td className="px-2 py-3 text-right">
         <div>
-          {numeral(BigNumber.from(data?.totalAsset).toNumber() / 100).format(
-            "$0,.00"
-          )}
-        </div>
-        <div className="text-xs text-gray-400">
-          {numeral(
-            BigNumber.from(data?.totalAssetElastic)
-              .div(
-                BigNumber.from("10").pow(Number(data.asset?.decimals || 0) - 2)
-              )
-              .toNumber() / 100
-          ).format("0,.00")}
-          &nbsp;
-          {data.asset?.symbol}
-        </div>
-      </td>
-      <td className="px-2 py-3 text-right">
-        {numeral(
-          BigNumber.from(data?.supplyAPR)
-            .div(BigNumber.from("1000000000000"))
-            .toNumber() / 100000
-        ).format("%0.00")}
-      </td>
-      <td className="px-2 py-3 text-right">
-        <div>
-          {numeral(BigNumber.from(data?.totalBorrow).toNumber() / 100).format(
-            "$0,.00"
-          )}
-        </div>
-        <div className="text-xs text-gray-400">
-          {numeral(
-            BigNumber.from(data?.totalBorrowElastic)
-              .div(
-                BigNumber.from("10").pow(Number(data.asset?.decimals || 0) - 2)
-              )
-              .toNumber() / 100
-          ).format("0,.00")}
-          &nbsp;
-          {data.asset?.symbol}
+          {data?.rewards?.map((reward: any, i: number) => (
+            <div
+              key={i}
+              className="flex gap-1 text-high-emphesis justify-end items-center"
+            >
+              {formatNumber(reward.rewardPerDay)}
+              <img
+                src={tokenUtilService.logo(reward.currency.symbol)}
+                className="inline-block w-4 h-4 rounded-full"
+                onError={handleLogoError}
+                alt={data.pair.asset?.symbol}
+              />
+            </div>
+          ))}
         </div>
       </td>
-      <td className="py-3 pl-2 pr-8 text-right">
-        {numeral(
-          BigNumber.from(data?.borrowAPR)
-            .div(BigNumber.from("1000000000000"))
-            .toNumber() / 100000
-        ).format("%0.00")}
+      <td className="pl-2 pr-8 py-3 text-right">
+        {data?.tvl !== 0
+          ? data?.roiPerYear > 10000
+            ? ">10,000%"
+            : formatPercent(data?.roiPerYear * 100)
+          : "_"}
       </td>
     </tr>
   );
@@ -288,15 +185,13 @@ const KashiPairFarmTable = ({
 }: {
   title: string;
   loading?: boolean;
-  data: KashiPair[];
+  data: any[];
 }) => {
   const [orderBy, setOrderBy] = useState<OrderBy>("");
   const [orderDirection, setOrderDirection] = useState<OrderDirection>("desc");
 
-  const [fullList, setFullList] = useState<KashiPair[]>([]);
-  const [sortedList, setSortedList] = useState<KashiPair[]>([]);
-  const [list, setList] = useState<KashiPair[]>([]);
-  const [isMore, setMore] = useState(false);
+  const [fullList, setFullList] = useState<any[]>([]);
+  const [sortedList, setSortedList] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const { tokenUtilService } = useAppContext();
 
@@ -308,74 +203,34 @@ const KashiPairFarmTable = ({
     let newSortedList = [...fullList];
     const compareFuncs = {
       asset: {
-        asc: (a: KashiPair, b: KashiPair) =>
-          (a.asset?.symbol.toLowerCase() || "").localeCompare(
-            b.asset?.symbol.toLowerCase() || ""
+        asc: (a: any, b: any) =>
+          (a.pair.asset?.symbol.toLowerCase() || "").localeCompare(
+            b.pair.asset?.symbol.toLowerCase() || ""
           ),
-        desc: (a: KashiPair, b: KashiPair) =>
-          (b.asset?.symbol.toLowerCase() || "").localeCompare(
-            a.asset?.symbol.toLowerCase() || ""
+        desc: (a: any, b: any) =>
+          (b.pair.asset?.symbol.toLowerCase() || "").localeCompare(
+            a.pair.asset?.symbol.toLowerCase() || ""
           ),
       },
       collateral: {
-        asc: (a: KashiPair, b: KashiPair) =>
-          (a.collateral?.symbol.toLowerCase() || "").localeCompare(
-            b.collateral?.symbol.toLowerCase() || ""
+        asc: (a: any, b: any) =>
+          (a.pair.collateral?.symbol.toLowerCase() || "").localeCompare(
+            b.pair.collateral?.symbol.toLowerCase() || ""
           ),
-        desc: (a: KashiPair, b: KashiPair) =>
-          (b.collateral?.symbol.toLowerCase() || "").localeCompare(
-            a.collateral?.symbol.toLowerCase() || ""
+        desc: (a: any, b: any) =>
+          (b.pair.collateral?.symbol.toLowerCase() || "").localeCompare(
+            a.pair.collateral?.symbol.toLowerCase() || ""
           ),
       },
-      totalSupply: {
-        asc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.totalAsset)
-            .add(BigNumber.from(a.totalBorrow))
-            .lte(
-              BigNumber.from(b.totalAsset).add(BigNumber.from(b.totalBorrow))
-            )
-            ? -1
-            : 1,
-        desc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.totalAsset)
-            .add(BigNumber.from(a.totalBorrow))
-            .gte(
-              BigNumber.from(b.totalAsset).add(BigNumber.from(b.totalBorrow))
-            )
-            ? -1
-            : 1,
+      tvl: {
+        asc: (a: any, b: any) => (a.tvl < b.tvl ? -1 : 1),
+        desc: (a: any, b: any) => (a.tvl > b.tvl ? -1 : 1),
       },
-      totalAsset: {
-        asc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.totalAsset).lte(BigNumber.from(b.totalAsset))
-            ? -1
-            : 1,
-        desc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.totalAsset).gte(BigNumber.from(b.totalAsset))
-            ? -1
-            : 1,
-      },
-      totalBorrow: {
-        asc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.totalBorrow).lte(BigNumber.from(b.totalBorrow))
-            ? 1
-            : -1,
-        desc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.totalBorrow).gte(BigNumber.from(b.totalBorrow))
-            ? -1
-            : 1,
-      },
-      supplyAPY: {
-        asc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.supplyAPR).lte(BigNumber.from(b.supplyAPR)) ? -1 : 1,
-        desc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.supplyAPR).gte(BigNumber.from(b.supplyAPR)) ? -1 : 1,
-      },
-      borrowAPY: {
-        asc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.borrowAPR).lte(BigNumber.from(b.borrowAPR)) ? -1 : 1,
-        desc: (a: KashiPair, b: KashiPair) =>
-          BigNumber.from(a.borrowAPR).gte(BigNumber.from(b.borrowAPR)) ? -1 : 1,
+      apr: {
+        asc: (a: any, b: any) =>
+          a.rewardAprPerDay < b.rewardAprPerDay ? -1 : 1,
+        desc: (a: any, b: any) =>
+          a.rewardAprPerDay > b.rewardAprPerDay ? -1 : 1,
       },
     };
 
@@ -384,22 +239,6 @@ const KashiPairFarmTable = ({
     }
     setSortedList(newSortedList);
   }, [fullList, orderBy, orderDirection]);
-
-  useEffect(() => {
-    setList([]);
-  }, [sortedList]);
-
-  const handleLoadMore = () => {
-    if (isMore) return;
-    setMore(true);
-    if (list.length < sortedList.length) {
-      const start = list.length;
-      const end = Math.min(start + 20, sortedList.length);
-      const newList = [...list, ...sortedList.slice(start, end)];
-      setList(newList);
-    }
-    setMore(false);
-  };
 
   const handleSort = (orderField: OrderBy) => {
     if (orderBy === orderField) {
@@ -446,8 +285,8 @@ const KashiPairFarmTable = ({
             {sortedList
               .filter((value) => {
                 const token = tokenUtilService.pairSymbol(
-                  value.asset?.symbol,
-                  value.collateral?.symbol
+                  value.pair.asset?.symbol,
+                  value.pair.collateral?.symbol
                 );
                 if (token) {
                   return token.toLowerCase().indexOf(search.toLowerCase()) >= 0;
