@@ -2,15 +2,17 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { CurrencyAmount, JSBI, Rebase, Token, ZERO } from "@sushiswap/core-sdk";
 
 export function toAmount(rebase: Rebase, shares: BigNumber): BigNumber {
-  return shares
-    .mul(BigNumber.from(rebase.elastic.toString()))
-    .div(BigNumber.from(rebase.base.toString()));
+  return shares.mulDiv(
+    BigNumber.from(rebase.elastic.toString()),
+    BigNumber.from(rebase.base.toString())
+  );
 }
 
 export function toShare(rebase: Rebase, amount: BigNumber): BigNumber {
-  return amount
-    .mul(BigNumber.from(rebase.base.toString()))
-    .div(BigNumber.from(rebase.elastic.toString()));
+  return amount.mulDiv(
+    BigNumber.from(rebase.base.toString()),
+    BigNumber.from(rebase.elastic.toString())
+  );
 }
 
 export function toAmountJSBI(token: Rebase, shares: JSBI): JSBI {

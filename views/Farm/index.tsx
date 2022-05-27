@@ -1,8 +1,13 @@
+import { ChainId } from "@sushiswap/core-sdk";
 import Head from "next/head";
+import { PairType } from "../../sushi/features/onsen/enum";
+import useFarmRewards from "../../sushi/hooks/useFarmRewards";
 import BaseLayout from "../Layouts/BaseLayout";
 import Hero from "./Hero";
 
 const Farm = () => {
+  const data = useFarmRewards({ chainId: ChainId.ETHEREUM });
+  const kashiFarms = data.filter((item) => item.pair.type === PairType.KASHI);
   return (
     <>
       <Head>
@@ -10,8 +15,6 @@ const Farm = () => {
       </Head>
       <BaseLayout>
         <Hero />
-        <div className="h-96"></div>
-        <div className="h-96"></div>
       </BaseLayout>
     </>
   );

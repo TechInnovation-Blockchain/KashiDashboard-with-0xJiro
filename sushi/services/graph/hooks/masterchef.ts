@@ -14,6 +14,7 @@ import { useActiveWeb3React } from "../../web3";
 import concat from "lodash/concat";
 import { useMemo } from "react";
 import useSWR, { SWRConfiguration } from "swr";
+import { Chef } from "../../../features/onsen/enum";
 
 export function useMasterChefV1TotalAllocPoint(swrConfig = undefined) {
   const { chainId } = useActiveWeb3React();

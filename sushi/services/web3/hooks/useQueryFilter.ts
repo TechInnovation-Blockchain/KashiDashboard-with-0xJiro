@@ -1,4 +1,4 @@
-import { Contract } from 'ethers'
+import { Contract } from '@ethersproject/contract'
 import { ChainId } from '@sushiswap/core-sdk'
 import stringify from 'fast-json-stable-stringify'
 import useSWR from 'swr'

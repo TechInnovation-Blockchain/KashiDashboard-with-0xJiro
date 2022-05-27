@@ -1,5 +1,5 @@
 import { ChainId } from '@sushiswap/core-sdk'
-import { GRAPH_HOST } from '../constant'
+import { GRAPH_HOST } from '../constants'
 import {
   dayDatasQuery,
   ethPriceQuery,
